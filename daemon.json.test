@@ -26,5 +26,5 @@
       "size": 26
     }
   ],
-  "authorization-plugins": ["openpolicyagent/opa-docker-authz-v2:0.4"],
+  "authorization-plugins": ["openpolicyagent/opa-docker-authz-v2:0.4"]
 }

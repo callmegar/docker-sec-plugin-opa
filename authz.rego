@@ -6,19 +6,6 @@ allow {
     not deny
 }
 
-# CIS 5.3 Ensure that Linux kernel capabilities are restricted within containers (Scored)
-deny {
-    c_5_03_caps_not_dropped
-}
-c_5_03_caps_not_dropped {
-    not drop_capabilities
-}
-drop_capabilities {
-    caps := ["AUDIT_WRITE","CHOWN","DAC_OVERRIDE","FOWNER","FSETID","KILL","MKNOD","NET_BIND_SERVICE","NET_RAW","SETFCAP","SETGID","SETPCAP","SETUID","SYS_CHROOT"]
-    input.Body.HostConfig.CapDrop == caps
-    input.Body.HostConfig.CapAdd ==  null
-}
-
 # CIS 5.4 Ensure that privileged containers are not used (Scored)
 # CIS 5.22 Ensure that docker exec commands are not used with the privileged option (Scored)
 deny {
@@ -193,26 +180,15 @@ c_5_23_exec_user_root {
 
 # CIS 5.24 Ensure that cgroup usage is confirmed (Scored)
 deny {
-  c_5_24_custom_cgroup_parent
+    c_5_24_custom_cgroup_parent
 }
 c_5_24_custom_cgroup_parent {
     input.Body.HostConfig.CgroupParent != ""
 }
 
-# CIS 5.25 Ensure that the container is restricted from acquiring additional privileges (Scored)
-deny {
-    c_5_25_new_privileges_not_restricted
-}
-c_5_25_new_privileges_not_restricted {
-    not new_privileges
-}
-new_privileges {
-    input.Body.HostConfig.SecurityOpt[_] == "no-new-privileges"
-}
-
 # CIS 5.28 Ensure that the PIDs cgroup limit is used (Scored)
 deny {
-  c_5_28_bad_pids_limit
+    c_5_28_bad_pids_limit
 }
 c_5_28_bad_pids_limit {
     input.Body.HostConfig.PidsLimit > 1000
@@ -226,7 +202,7 @@ deny {
     c_5_29_default_network_used
 }
 c_5_29_default_network_used {
-    count(input.Body.NetworkingConfig.EndpointsConfig) == 0
+    input.Body.HostConfig.NetworkMode == "default"
 }
 
 # CIS 5.30 Ensure that the host's user namespaces are not shared (Scored)

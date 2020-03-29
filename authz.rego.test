@@ -1,0 +1,101 @@
+package docker.authz
+
+default allow = false
+
+allow {
+    not deny
+}
+
+# CIS 5.4 Ensure that privileged containers are not used (Scored)
+# CIS 5.22 Ensure that docker exec commands are not used with the privileged option (Scored)
+deny {
+    c_5_04_privileged_container
+}
+c_5_04_privileged_container {
+    input.Body.HostConfig.Privileged == true
+}
+
+# CIS 5.7 Ensure privileged ports are not mapped within containers (Scored)
+deny {
+    c_5_07_privileged_ports
+}
+c_5_07_privileged_ports {
+    to_number(input.Body.HostConfig.PortBindings[_][_].HostPort) <= 1024
+}
+
+# CIS 5.13 Ensure that incoming container traffic is bound to a specific host interface (Scored)
+deny {
+    c_5_13_default_interface_used
+}
+c_5_13_default_interface_used {
+    input.Body.HostConfig.PortBindings[_][_].HostIp == "0.0.0.0"
+}
+c_5_13_default_interface_used {
+    count(input.Body.HostConfig.PortBindings[_]) == 0
+}
+c_5_13_default_interface_used {
+    ips := [ ip | input.Body.HostConfig.PortBindings[i][j].HostPort != ""; not input.Body.HostConfig.PortBindings[i][j].HostIp; ip := "default" ]
+    trace(ips[_])
+    ips[_] == "default"
+}
+
+# CIS 5.17 Ensure that host devices are not directly exposed to containers (Not Scored)
+deny {
+    c_5_17_host_devices_exposed
+}
+c_5_17_host_devices_exposed {
+    count(input.Body.HostConfig.Devices)>0
+}
+
+#CIS 5.19 Ensure mount propagation mode is not set to shared (Scored)
+deny {
+    c_5_19_mount_propagation_shared
+}
+c_5_19_mount_propagation_shared {
+    input.Body.HostConfig.Mounts[_].BindOptions.Propagation == "shared"
+}
+c_5_19_mount_propagation_shared {
+    input.Body.HostConfig.Mounts[_].BindOptions.Propagation == "rshared"
+}
+c_5_19_mount_propagation_shared {
+    bind := split(input.Body.HostConfig.Binds[_],":")
+    options := split(bind[_],",")
+    options[_] == "shared"
+}
+c_5_19_mount_propagation_shared {
+    bind := split(input.Body.HostConfig.Binds[_],":")
+    options := split(bind[_],",")
+    options[_] == "rshared"
+}
+
+# CIS 5.20 Ensure that the host's UTS namespace is not shared (Scored)
+deny {
+    c_5_20_host_uts_namespace_shared
+}
+c_5_20_host_uts_namespace_shared {
+    input.Body.HostConfig.UTSMode == "host"
+}
+
+# CIS 5.21 Ensure the default seccomp profile is not Disabled (Scored)
+deny {
+    c_5_21_seccomp_unconfined
+}
+c_5_21_seccomp_unconfined {
+    input.Body.HostConfig.SecurityOpt[_] == "seccomp:unconfined"
+}
+
+# CIS 5.23 Ensure that docker exec commands are not used with the user=root option (Not Scored)
+deny {
+    c_5_23_exec_user_root
+}
+c_5_23_exec_user_root {
+    input.Body.User == "root"
+}
+
+# CIS 5.24 Ensure that cgroup usage is confirmed (Scored)
+deny {
+    c_5_24_custom_cgroup_parent
+}
+c_5_24_custom_cgroup_parent {
+    input.Body.HostConfig.CgroupParent != ""
+}

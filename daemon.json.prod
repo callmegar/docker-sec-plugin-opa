@@ -1,0 +1,31 @@
+{
+  "icc": false,
+  "default-ulimits": {
+    "nofile": {
+        "Name": "nofile",
+        "Hard": 32767,
+        "Soft": 2048
+      },
+      "nproc" : {
+        "Name": "nproc",
+        "Hard": 32767,
+        "Soft": 2048
+      }
+  },
+  "live-restore": true,
+  "log-driver": "syslog",
+  "log-opts": {
+    "syslog-address": "udp://127.0.0.1"
+  },
+  "userland-proxy": false,
+  "no-new-privileges": true,
+  "bip": "100.67.8.1/24",
+  "default-address-pools": [
+    {
+      "base": "100.67.0.0/21",
+      "size": 26
+    }
+  ],
+  "authorization-plugins": ["openpolicyagent/opa-docker-authz-v2:0.4"],
+  "userns-remap": "svc_dockerns"
+}

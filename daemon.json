@@ -12,7 +12,6 @@
         "Soft": 2048
       }
   },
-  "live-restore": true,
   "log-driver": "syslog",
   "log-opts": {
     "syslog-address": "udp://127.0.0.1"

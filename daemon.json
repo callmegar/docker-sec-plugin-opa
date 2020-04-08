@@ -13,6 +13,7 @@
       }
   },
   "log-driver": "syslog",
+  "log-level": "info",
   "log-opts": {
     "syslog-address": "udp://127.0.0.1"
   },
